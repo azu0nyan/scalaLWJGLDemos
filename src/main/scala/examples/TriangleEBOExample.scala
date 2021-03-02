@@ -1,9 +1,10 @@
 package examples
 
+
 import lwjglutils.LwjglApp
 import org.lwjgl._
 import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL11.glDrawArrays
+import org.lwjgl.opengl.GL11.{glDrawArrays, glDrawElements}
 import org.lwjgl.opengl.GL15._
 import org.lwjgl.opengl.GL20._
 import org.lwjgl.opengl.GL30.{glBindVertexArray, glGenVertexArrays}
@@ -11,34 +12,48 @@ import org.lwjgl.opengl.GL30.{glBindVertexArray, glGenVertexArrays}
 import java.nio.{FloatBuffer, IntBuffer}
 import scala.io.Source
 
-object TriangleExample extends LwjglApp {
+object TriangleEBOExample extends LwjglApp {
   val vertices: Array[Float] = Array(
-    -0.5f, -0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    0.0f, 0.5f, 0.0f
+    0.5f,  0.5f, 0.0f,  // top right
+    0.5f, -0.5f, 0.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f,  // bottom left
+    -0.5f,  0.5f, 0.0f   // top left
   )
 
+  val indices: Array[Int] = Array( // note that we start from 0!
+    0, 1, 3, // first triangle
+    1, 2, 3) // second triangle)
+
   var shaderProgram = 0
-  var vao = 0
+  var ebo = 0
   var vbo = 0
+  var vao = 0
 
   override def userInit(): Unit = {
+    //create and setup vao
     vao = glGenVertexArrays()
     vbo = glGenBuffers()
+    ebo = glGenBuffers()
 
+    //vao
+    glBindVertexArray(vao)
 
-    // 2. copy our vertices array in a buffer for OpenGL to use
+    //bind and fill vbo
     glBindBuffer(GL_ARRAY_BUFFER, vbo)
-
-    // 3. then set our vertex attributes pointers
     glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW)
 
-    //using VAO
-    glBindVertexArray(vao)
-    //configure format, stored in VAO
+    //bind and fill ebo
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo)
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW)
+
+    //vao stores ebo / vbo state
     glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 3 * 4, 0)
-    //enable VAO
-    glEnableVertexAttribArray(0)
+    glEnableVertexAttribArray(0) //enable vao
+
+    //unbind
+    // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
+    glBindBuffer(GL_ARRAY_BUFFER, 0)
+    glBindVertexArray(0)
 
 
     val vertexShader: Int = glCreateShader(GL_VERTEX_SHADER)
@@ -101,14 +116,16 @@ object TriangleExample extends LwjglApp {
   }
 
   override def drawCall(): Unit = {
-
-    // 2. use our shader program when we want to render an object
+    //bind compiled shader
     glUseProgram(shaderProgram)
-
-    //drawing vao, already bound in init  glBindVertexArray(vao)
-    glDrawArrays(GL11.GL_TRIANGLES, 0, 3)
-
+    //bind configured vao
+    glBindVertexArray(vao)
+    //draw using bided vao
+    glDrawElements(GL11.GL_TRIANGLES, 6, GL11.GL_UNSIGNED_INT, 0)
+    //unbind vao
+    glBindVertexArray(0)
 
   }
 
 }
+

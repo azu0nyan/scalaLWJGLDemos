@@ -1,21 +1,20 @@
 package examples
 
 import lwjglutils.LwjglApp
-import org.lwjgl._
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.glDrawArrays
-import org.lwjgl.opengl.GL15._
-import org.lwjgl.opengl.GL20._
+import org.lwjgl.opengl.GL15.{GL_ARRAY_BUFFER, GL_STATIC_DRAW, glBindBuffer, glBufferData, glGenBuffers}
+import org.lwjgl.opengl.GL20.{GL_COMPILE_STATUS, GL_FRAGMENT_SHADER, GL_LINK_STATUS, GL_VERTEX_SHADER, glAttachShader, glCompileShader, glCreateProgram, glCreateShader, glEnableVertexAttribArray, glGetProgramInfoLog, glGetProgramiv, glGetShaderInfoLog, glGetShaderiv, glLinkProgram, glShaderSource, glUseProgram, glVertexAttribPointer}
 import org.lwjgl.opengl.GL30.{glBindVertexArray, glGenVertexArrays}
 
-import java.nio.{FloatBuffer, IntBuffer}
 import scala.io.Source
 
-object TriangleExample extends LwjglApp {
+object ShaderExample extends LwjglApp {
   val vertices: Array[Float] = Array(
-    -0.5f, -0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    0.0f, 0.5f, 0.0f
+    // positions         // colors
+    0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom right
+    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom left
+    0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f // top
   )
 
   var shaderProgram = 0
@@ -35,14 +34,14 @@ object TriangleExample extends LwjglApp {
 
     //using VAO
     glBindVertexArray(vao)
-    //configure array format
-    glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 3 * 4, 0)
-    //enable array
+    glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 6 * 4, 0)
     glEnableVertexAttribArray(0)
+    glVertexAttribPointer(1, 3, GL11.GL_FLOAT, false, 6 * 4, 3 * 4)
+    glEnableVertexAttribArray(1)
 
 
     val vertexShader: Int = glCreateShader(GL_VERTEX_SHADER)
-    val vertexShaderString: String = Source.fromResource("shaders/triangleExample.vert").getLines().mkString("\n")
+    val vertexShaderString: String = Source.fromResource("shaders/shaderExample.vert").getLines().mkString("\n")
 
     {
       glShaderSource(vertexShader, vertexShaderString)
@@ -62,7 +61,7 @@ object TriangleExample extends LwjglApp {
     }
 
     val fragmentShader: Int = glCreateShader(GL_FRAGMENT_SHADER)
-    val fragmentShaderString: String = Source.fromResource("shaders/triangleExample.frag").getLines().mkString("\n")
+    val fragmentShaderString: String = Source.fromResource("shaders/shaderExample.frag").getLines().mkString("\n")
 
     {
       glShaderSource(fragmentShader, fragmentShaderString)
@@ -104,9 +103,6 @@ object TriangleExample extends LwjglApp {
 
     // 2. use our shader program when we want to render an object
     glUseProgram(shaderProgram)
-
-
-    glBindVertexArray(vao)
 
     //drawing vao, already bound in init  glBindVertexArray(vao)
     glDrawArrays(GL11.GL_TRIANGLES, 0, 3)

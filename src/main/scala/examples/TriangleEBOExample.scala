@@ -53,7 +53,7 @@ object TriangleEBOExample extends LwjglApp {
     //unbind
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0)
-    glBindVertexArray(0)
+//    glBindVertexArray(0)
 
 
     val vertexShader: Int = glCreateShader(GL_VERTEX_SHADER)

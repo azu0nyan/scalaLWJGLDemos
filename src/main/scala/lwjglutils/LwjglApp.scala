@@ -10,9 +10,9 @@ import org.lwjgl.system.MemoryStack._
 import org.lwjgl.system.MemoryUtil._
 
 
-class LwjglApp(windowTitle:String = "LWJGL application",windowWidth:Int = 300, windowHeight:Int = 300) {
+class LwjglApp(windowTitle: String = "LWJGL application", windowWidth: Int = 300, windowHeight: Int = 300) {
 
-  def main(args:Array[String]):Unit = run()
+  def main(args: Array[String]): Unit = run()
 
   private var window = 0L
 
@@ -46,6 +46,7 @@ class LwjglApp(windowTitle:String = "LWJGL application",windowWidth:Int = 300, w
     if (window == NULL) throw new RuntimeException("Failed to create the GLFW window")
     // Setup a key callback. It will be called every time a key is pressed, repeated or released.
     glfwSetKeyCallback(window, keyPressed)
+    glfwSetMouseButtonCallback(window, mouseKeyPressed)
 
     // Get the thread stack and push a new frame
     val stack = stackPush
@@ -100,9 +101,10 @@ class LwjglApp(windowTitle:String = "LWJGL application",windowWidth:Int = 300, w
 
 
   def keyPressed(window: Long, key: Int, scancode: Int, action: Int, mods: Int): Unit = {
+    println(key)
     (key, action, mods) match {
       case (GLFW_KEY_ESCAPE, GLFW_RELEASE, _) => glfwSetWindowShouldClose(window, true)
-      case _ => userKeyPressed(window, key, scancode, action, mods)
+      case _ => userKeyPressed(key, scancode, action, mods)
     }
   }
 
@@ -114,7 +116,29 @@ class LwjglApp(windowTitle:String = "LWJGL application",windowWidth:Int = 300, w
   def drawCall(): Unit = {}
 
   /** Override */
-  def userKeyPressed(window: Long, key: Int, scancode: Int, action: Int, mods: Int): Unit = {}
+  def userKeyPressed(key: Int, scancode: Int, action: Int, mods: Int): Unit = {}
+
+
+  def mousePosition: (Double, Double) = {
+    import org.lwjgl.BufferUtils
+    import java.nio.DoubleBuffer
+    val xBuffer = BufferUtils.createDoubleBuffer(1)
+    val yBuffer = BufferUtils.createDoubleBuffer(1)
+    glfwGetCursorPos(window, xBuffer, yBuffer)
+    val x = xBuffer.get(0)
+    val y = yBuffer.get(0)
+    (x, y)
+  }
+
+  def mouseKeyPressed: GLFWMouseButtonCallback = new GLFWMouseButtonCallback() {
+    override def invoke(window: Long, button: Int, action: Int, mods: Int): Unit = {
+      userMousePressed(button, action, mods)
+    }
+  }
+
+  def userMousePressed(button: Long, action: Int, mods: Int): Unit = {
+    println(mousePosition)
+  }
 
 
 }

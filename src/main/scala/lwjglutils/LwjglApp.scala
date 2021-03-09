@@ -109,14 +109,7 @@ class LwjglApp(windowTitle: String = "LWJGL application", windowWidth: Int = 300
   }
 
 
-  /** Override */
-  def userInit(): Unit = {}
 
-  /** Override */
-  def drawCall(): Unit = {}
-
-  /** Override */
-  def userKeyPressed(key: Int, scancode: Int, action: Int, mods: Int): Unit = {}
 
 
   def mousePosition: (Double, Double) = {
@@ -137,8 +130,15 @@ class LwjglApp(windowTitle: String = "LWJGL application", windowWidth: Int = 300
   }
 
   def userMousePressed(button: Long, action: Int, mods: Int): Unit = {
-    println(mousePosition)
   }
 
 
+  /** Override */
+  def userInit(): Unit = {}
+
+  /** Override */
+  def drawCall(): Unit = {}
+
+  /** Override */
+  def userKeyPressed(key: Int, scancode: Int, action: Int, mods: Int): Unit = {}
 }

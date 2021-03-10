@@ -12,7 +12,7 @@ import org.lwjgl.opengl.GL30.{glBindVertexArray, glGenVertexArrays}
 import java.nio.{FloatBuffer, IntBuffer}
 import scala.io.Source
 
-object TriangleEBOExample extends LwjglApp {
+object SquareEBOExample extends LwjglApp {
   val vertices: Array[Float] = Array(
     0.5f,  0.5f, 0.0f,  // top right
     0.5f, -0.5f, 0.0f,  // bottom right
